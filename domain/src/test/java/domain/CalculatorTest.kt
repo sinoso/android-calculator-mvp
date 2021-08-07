@@ -1,8 +1,10 @@
-package edu.nextstep.camp.calculator.domain
+package domain
 
 import com.google.common.truth.Truth.assertThat
+import com.joseph.domain.Calculator
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+
 
 class CalculatorTest {
     private lateinit var calculator: Calculator
