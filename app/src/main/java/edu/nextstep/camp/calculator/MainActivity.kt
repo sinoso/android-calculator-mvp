@@ -3,14 +3,17 @@ package edu.nextstep.camp.calculator
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
-import edu.nextstep.camp.calculator.domain.Calculator
 import edu.nextstep.camp.calculator.domain.Expression
+import edu.nextstep.camp.calculator.domain.History
 import edu.nextstep.camp.calculator.domain.Operator
 
 class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
     private lateinit var presenter: MainPresenter
+
+    private val mainAdapter = MainAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,6 +21,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         setContentView(binding.root)
 
         presenter = MainPresenter(view = this)
+
+        binding.recyclerView.adapter = mainAdapter
 
         setupListener()
     }
@@ -28,6 +33,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun showError() {
         Toast.makeText(this, getString(R.string.incomplete_expression), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showHistories(histories: List<History>) = with(binding) {
+        textView.isVisible = false
+        recyclerView.isVisible = true
+        mainAdapter.replaceItems(items = histories)
+    }
+
+    override fun hideHistories() = with(binding) {
+        textView.isVisible = true
+        recyclerView.isVisible = false
     }
 
     private fun setupListener() {
@@ -78,6 +94,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
         binding.buttonEquals.setOnClickListener {
             presenter.calculate()
+        }
+        binding.buttonMemory.setOnClickListener {
+            if (binding.recyclerView.isVisible) {
+                hideHistories()
+                return@setOnClickListener
+            }
+            showHistories(histories = presenter.histories)
         }
     }
 }

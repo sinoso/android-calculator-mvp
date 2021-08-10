@@ -10,10 +10,11 @@ import org.junit.jupiter.api.Test
 internal class MainPresenterTest {
 
     private val view: MainContract.View = mockk(relaxed = true)
+    private lateinit var presenter: MainContract.Presenter
 
     @Test
     fun `숫자가 입력되면 수식에 추가되고 변경된 수식을 보여줘야 한다`() {
-        val presenter = MainPresenter(view = view) as MainContract.Presenter
+        presenter = MainPresenter(view = view)
 
         presenter.formatExpression(number = 1)
 
@@ -25,7 +26,7 @@ internal class MainPresenterTest {
 
     @Test
     fun `빈 수식에 연산자가 입력되면 수식에 추가되지 않습니다`() {
-        val presenter = MainPresenter(view = view) as MainContract.Presenter
+        presenter = MainPresenter(view = view)
 
         presenter.formatExpression(operator = Operator.Plus)
 
@@ -37,12 +38,12 @@ internal class MainPresenterTest {
 
     @Test
     fun `수식을 지우면 마지막 수식이 지워지고 지워진 수식을 보여줘야 한다`() {
-        val presenter = MainPresenter(
+        presenter = MainPresenter(
             view = view,
-            _expression = Expression(
+            expression = Expression(
                 values = listOf(2, Operator.Plus, 3, Operator.Multiply, 4, Operator.Divide, 2)
             ),
-        ) as MainContract.Presenter
+        )
 
         presenter.deleteExpression()
 
@@ -54,12 +55,12 @@ internal class MainPresenterTest {
 
     @Test
     fun `완전한 수식을 계산하면 계산된 결과를 보여줘야 한다`() {
-        val presenter = MainPresenter(
+        presenter = MainPresenter(
             view = view,
-            _expression = Expression(
+            expression = Expression(
                 values = listOf(2, Operator.Plus, 3, Operator.Multiply, 4, Operator.Divide, 2)
             )
-        ) as MainContract.Presenter
+        )
 
         presenter.calculate()
 
@@ -71,16 +72,30 @@ internal class MainPresenterTest {
 
     @Test
     fun `불완전한 수식을 계산하면 에러가 발생한다`() {
-        val presenter = MainPresenter(
+        presenter = MainPresenter(
             view = view,
-            _expression = Expression(
+            expression = Expression(
                 values = listOf(2, Operator.Plus, 3, Operator.Multiply)
             )
-        ) as MainContract.Presenter
+        )
 
         presenter.calculate()
         verify {
             view.showError()
         }
+    }
+
+    @Test
+    fun `계산을 하게 되면 계산 기록이 저장됩니다`() {
+        presenter = MainPresenter(
+            view = view,
+            expression = Expression(
+                values = listOf(2, Operator.Plus, 3)
+            )
+        )
+
+        presenter.calculate()
+
+        assertThat(presenter.histories.size).isEqualTo(1)
     }
 }
