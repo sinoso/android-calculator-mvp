@@ -10,7 +10,7 @@
     >
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/text_result"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="16dp"
@@ -29,10 +29,10 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/textView"
-        app:layout_constraintEnd_toEndOf="@id/textView"
-        app:layout_constraintStart_toStartOf="@id/textView"
-        app:layout_constraintTop_toTopOf="@id/textView"
+        app:layout_constraintBottom_toBottomOf="@id/text_result"
+        app:layout_constraintEnd_toEndOf="@id/text_result"
+        app:layout_constraintStart_toStartOf="@id/text_result"
+        app:layout_constraintTop_toTopOf="@id/text_result"
         tools:listitem="@layout/item_result"
         tools:visibility="visible"
         />
