@@ -1,4 +1,4 @@
-package domain
+package com.joseph.domain
 
 import com.google.common.truth.Truth.assertThat
 import com.joseph.domain.Calculator
