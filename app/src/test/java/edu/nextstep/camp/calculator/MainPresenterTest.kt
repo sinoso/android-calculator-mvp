@@ -1,6 +1,8 @@
 package edu.nextstep.camp.calculator
 
 import com.google.common.truth.Truth.assertThat
+import edu.nextstep.camp.domain.CalculationHistory
+import edu.nextstep.camp.domain.CalculatorMemory
 import edu.nextstep.camp.domain.Expression
 import edu.nextstep.camp.domain.Operator
 import io.mockk.every
@@ -160,5 +162,43 @@ class MainPresenterTest {
         // then
         verify(exactly = 0) { view.refreshExpression(any()) }
         verify(exactly = 1) { view.notifyIncompleteExpression() }
+    }
+
+    @Test
+    fun `입력한 수식이 완전할 때 결과를 구하면 기록된 목록을 뷰에 알린다`() {
+        // given
+        val expression = Expression(10, Operator.Plus, 20)
+        presenter = MainPresenter(view, expression)
+
+        val calculationHistoriesSlot = slot<List<CalculationHistory>>()
+        every { view.refreshCalculationHistories(capture(calculationHistoriesSlot)) } answers { nothing }
+
+        val expectedHistories = listOf(CalculationHistory(expression, 30))
+
+        // when
+        presenter.calculateExpression()
+
+        // then
+        val actualHistories = calculationHistoriesSlot.captured
+
+        assertThat(actualHistories).containsExactlyElementsIn(expectedHistories).inOrder()
+        verify(exactly = 1) { view.refreshCalculationHistories(actualHistories) }
+    }
+
+    @Test
+    fun `입력한 수식이 완전할 때 결과를 구하면 해당 수식과 결과가 기록에 남는다`() {
+        // given
+        val expression = Expression(10, Operator.Plus, 20)
+        val calculatorMemory = CalculatorMemory()
+        presenter = MainPresenter(view, expression, calculatorMemory)
+
+        val expectedHistories = listOf(CalculationHistory(expression, 30))
+
+        // when
+        presenter.calculateExpression()
+
+        // then
+        val actualHistories = calculatorMemory.getHistories()
+        assertThat(actualHistories).containsExactlyElementsIn(expectedHistories).inOrder()
     }
 }

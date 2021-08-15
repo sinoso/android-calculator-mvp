@@ -4,10 +4,12 @@ import androidx.annotation.IdRes
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItem
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import edu.nextstep.camp.calculator.utils.ToastMatcher.Companion.isToast
 import edu.nextstep.camp.domain.Operator
+import org.hamcrest.Matchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -113,6 +115,49 @@ class CalculatorActivityTest {
         // then
         onView(withText("완성되지 않은 수식입니다.")).inRoot(isToast())
             .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun `시계_버튼을_누르면_계산_기록_뷰가_보이고_수식_뷰는_보이지_않는다`() {
+        // when
+        onView(withId(R.id.buttonMemory)).perform(click())
+
+        // then
+        onView(withId(R.id.text_result)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun `시계_버튼을_누른_후_다시_누르면_기록_뷰는_보이지_않고_수식_뷰가_보인다`() {
+        // when : 1번 누른 상태
+        onView(withId(R.id.buttonMemory)).perform(click())
+
+        // then
+        onView(withId(R.id.text_result)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.recyclerView)).check(matches(isDisplayed()))
+
+        // when : 2번 누른 상태
+        onView(withId(R.id.buttonMemory)).perform(click())
+
+        // then
+        onView(withId(R.id.text_result)).check(matches(isDisplayed()))
+        onView(withId(R.id.recyclerView)).check(matches(not(isDisplayed())))
+    }
+
+    @Test
+    fun `완전한_수식을_계산한_뒤_시계_버튼을_누르면_해당_기록이_보인다`() {
+        // given: "1 + 2"
+        onView(withId(R.id.button1)).perform(click())
+        onView(withId(R.id.buttonPlus)).perform(click())
+        onView(withId(R.id.button2)).perform(click())
+
+        // when
+        onView(withId(R.id.buttonEquals)).perform(click())
+        onView(withId(R.id.buttonMemory)).perform(click())
+
+        // then
+        onView(withText("1 + 2")).check(matches(isDisplayed()))
+        onView(withText("=3")).check(matches(isDisplayed()))
     }
 }
 
