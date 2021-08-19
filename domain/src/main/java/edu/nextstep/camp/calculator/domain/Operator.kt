@@ -9,6 +9,8 @@ enum class Operator(
     Multiply("*", { x, y -> x * y }),
     Divide("/", { x, y -> x / y });
 
+    override fun toString() = sign
+
     companion object {
         fun of(sign: String): Operator? {
             return values().find { it.sign == sign }

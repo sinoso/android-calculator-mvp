@@ -65,4 +65,17 @@ class CalculatorTest {
         // then
         assertThat(actual).isNull()
     }
+
+    @Test
+    fun `수식 계산 시, 계산식과 결과가 계산 기록에 추가 되어야 한다`() {
+        // given
+        val expression = "4 / 2"
+
+        // when
+        val result = calculator.calculate(expression)
+        val calResult = CalculationHistory(expression, result ?: 0)
+
+        // then
+        assertThat(calculator.getHistories()).isEqualTo(listOf(calResult))
+    }
 }
