@@ -1,12 +1,11 @@
 package edu.nextstep.camp.calculator
 
-import com.joseph.domain.Calculator
-import com.joseph.domain.Expression
-import com.joseph.domain.Operator
+import com.joseph.domain.*
 
 class MainPresenter(
     private val view: MainContract.View,
-    private var expression: Expression = Expression.EMPTY
+    private var expression: Expression = Expression.EMPTY,
+    private val calculateRecorder: CalculateRecorder = CalculateRecorder()
 ): MainContract.Presenter {
 
     private val calculator = Calculator()
@@ -31,8 +30,18 @@ class MainPresenter(
         if (result == null) {
             view.showIncompleteExpressionToast()
         } else {
+            addCalculateRecord(CalculateRecord(expression, result))
             expression = Expression.EMPTY + result
             view.displayExpression(expression)
         }
+    }
+
+    override fun addCalculateRecord(record: CalculateRecord) {
+        val records = calculateRecorder.recordCalculate(record)
+        view.refreshCalculateRecords(records)
+    }
+
+    override fun toggleCalculateResults() {
+        view.toggleCalculateResults()
     }
 }
