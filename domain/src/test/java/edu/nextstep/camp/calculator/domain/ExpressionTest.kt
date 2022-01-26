@@ -1,9 +1,9 @@
 package edu.nextstep.camp.calculator.domain
 
-import com.google.common.truth.Truth.assertThat
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ExpressionTest {
+internal class ExpressionTest {
     @Test
     fun `빈 수식일 때, 피연산자를 추가할 수 있어야한다`() {
         // given
