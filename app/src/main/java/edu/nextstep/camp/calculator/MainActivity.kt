@@ -4,13 +4,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
-import edu.nextstep.camp.calculator.domain.Calculator
-import edu.nextstep.camp.calculator.domain.Expression
-import edu.nextstep.camp.calculator.domain.Operator
+import edu.nextstep.camp.calculator.domain.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val calculator = Calculator()
+    private val calculator = Calculator
     private var expression = Expression.EMPTY
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,19 +57,19 @@ class MainActivity : AppCompatActivity() {
             binding.textView.text = expression.toString()
         }
         binding.buttonPlus.setOnClickListener {
-            expression += Operator.Plus
+            expression += edu.nextstep.camp.calculator.domain.Operator.Plus
             binding.textView.text = expression.toString()
         }
         binding.buttonMinus.setOnClickListener {
-            expression += Operator.Minus
+            expression += edu.nextstep.camp.calculator.domain.Operator.Minus
             binding.textView.text = expression.toString()
         }
         binding.buttonMultiply.setOnClickListener {
-            expression += Operator.Multiply
+            expression += edu.nextstep.camp.calculator.domain.Operator.Multiply
             binding.textView.text = expression.toString()
         }
         binding.buttonDivide.setOnClickListener {
-            expression += Operator.Divide
+            expression += edu.nextstep.camp.calculator.domain.Operator.Divide
             binding.textView.text = expression.toString()
         }
         binding.buttonDelete.setOnClickListener {

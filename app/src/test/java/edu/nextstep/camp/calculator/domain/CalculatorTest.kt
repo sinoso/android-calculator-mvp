@@ -9,7 +9,7 @@ class CalculatorTest {
 
     @BeforeEach
     fun setUp() {
-        calculator = Calculator()
+        calculator = Calculator
     }
 
     @Test
