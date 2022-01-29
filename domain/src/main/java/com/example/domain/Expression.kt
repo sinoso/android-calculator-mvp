@@ -1,4 +1,4 @@
-package edu.nextstep.camp.calculator.domain
+package com.example.domain
 
 data class Expression(
     private val values: List<Any> = emptyList()

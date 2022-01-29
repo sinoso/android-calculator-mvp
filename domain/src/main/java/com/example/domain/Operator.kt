@@ -1,4 +1,4 @@
-package edu.nextstep.camp.calculator.domain
+package com.example.domain
 
 enum class Operator(
     val sign: String,
