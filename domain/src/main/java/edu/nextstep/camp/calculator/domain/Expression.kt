@@ -1,4 +1,4 @@
-package edu.nextstep.camp.domain
+package edu.nextstep.camp.calculator.domain
 
 class Expression {
     private val calculator by lazy { Calculator() }
@@ -11,13 +11,16 @@ class Expression {
     private fun String.replaceMultiply() = this.replace("×", "*")
     private fun String.replaceDivide() = this.replace("÷", "/")
 
-    fun appendStatement(str: String, input: String): String {
+    fun appendOperator(str: String, input: String): String? {
+        return if (str.isNotEmpty()) "$str $input"
+        else null
+    }
+
+    fun appendOperand(str: String, input: String): String {
         val trimmedString = str.trim()
         return if (trimmedString.isEmptyOrDigit(input)) {
             "$trimmedString$input"
-        } else {
-            "$trimmedString $input"
-        }
+        } else "$trimmedString $input"
     }
 
     private fun String.isEmptyOrDigit(input: String) =

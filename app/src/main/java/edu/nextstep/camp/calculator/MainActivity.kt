@@ -4,16 +4,16 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
-import edu.nextstep.camp.domain.Expression
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
-    private val expression by lazy { Expression() }
+    private lateinit var presenter: MainContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        presenter = MainPresenter(this)
 
         clickButtonListener()
     }
@@ -39,26 +39,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun appendOperand(operand: String) {
-        binding.textView.text =
-            expression.appendStatement(binding.textView.text.toString(), operand)
+        presenter.appendOperand(binding.textView.text.toString(), operand)
     }
 
     private fun appendOperator(operator: String) {
-        if (binding.textView.text.isNotEmpty()) {
-            binding.textView.text =
-                expression.appendStatement(binding.textView.text.toString(), operator)
-        }
+        presenter.appendOperator(binding.textView.text.toString(), operator)
     }
 
     private fun deleteLastElement() {
-        binding.textView.text = expression.deleteLastElement(binding.textView.text.toString())
+        presenter.deleteLastElement(binding.textView.text.toString())
     }
 
     private fun calculateStatement() {
         runCatching {
-            binding.textView.text = expression.calculatedValue(binding.textView.text.toString())
+            presenter.calculate(binding.textView.text.toString())
         }.onFailure { e ->
             Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun showExpression(expression: String?) {
+        binding.textView.text = expression
     }
 }

@@ -1,10 +1,10 @@
-package edu.nextstep.camp.domain
+package edu.nextstep.camp.calculator.domain
 
 import com.google.common.truth.Truth.assertThat
-import edu.nextstep.camp.domain.Calculator.Companion.IS_NOT_OPERATOR
-import edu.nextstep.camp.domain.Calculator.Companion.IS_NOT_OR_BLANK
-import edu.nextstep.camp.domain.Calculator.Companion.WRONG_INPUT
-import edu.nextstep.camp.domain.Operator.Companion.IS_NOT_DIVIDE_BY_ZERO
+import edu.nextstep.camp.calculator.domain.Calculator.Companion.IS_NOT_OPERATOR
+import edu.nextstep.camp.calculator.domain.Calculator.Companion.IS_NOT_OR_BLANK
+import edu.nextstep.camp.calculator.domain.Calculator.Companion.WRONG_INPUT
+import edu.nextstep.camp.calculator.domain.Operator.Companion.IS_NOT_DIVIDE_BY_ZERO
 import org.junit.Assert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
