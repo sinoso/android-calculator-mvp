@@ -1,8 +1,13 @@
 package edu.nextstep.camp.calculator
 
+import edu.nextstep.camp.calculator.domain.model.RecordStatement
+
 interface MainContract {
     interface View {
         fun showExpression(expression: String?)
+        fun showError(errorMessage: String)
+        fun notifyRecordStatement(recordStatement: RecordStatement)
+        fun showMemory(isVisible: Boolean)
     }
 
     interface Presenter {

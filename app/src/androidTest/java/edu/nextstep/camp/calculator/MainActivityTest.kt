@@ -11,6 +11,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import edu.nextstep.camp.calculator.view.MainActivity
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matcher
 import org.junit.Rule
@@ -213,6 +214,21 @@ class MainActivityTest {
 
         // THEN - 수식의 결과가 화면에 나온다.
         onView(withId(R.id.textView)).check(matches(withText("4")))
+    }
+
+    @Test
+    fun inputStatement_clickEqualButton_recordStatement() {
+        // GIVEN - 수식이 입력이 될 때
+        val statement = "2 + 2"
+        onView(withId(R.id.textView)).perform(setTextInTextView(statement))
+
+        // WHEN - 사용자가 계산 버튼과 기록 보기 버튼을 누르면
+        onView(withId(R.id.buttonEquals)).perform(click())
+        onView(withId(R.id.buttonMemory)).perform(click())
+
+        // THEN - 수식의 결과가 기록 목록에 저장된 걸 볼 수 있다.
+        onView(withId(R.id.tv_expression)).check(matches(withText(statement)))
+        onView(withId(R.id.tv_result)).check(matches(withText("= 4")))
     }
 
     private fun setTextInTextView(str: String): ViewAction {

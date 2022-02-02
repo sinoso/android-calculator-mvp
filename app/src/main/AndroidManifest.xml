@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidCalculator">
-        <activity android:name="edu.nextstep.camp.calculator.MainActivity">
+        <activity android:name="edu.nextstep.camp.calculator.view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

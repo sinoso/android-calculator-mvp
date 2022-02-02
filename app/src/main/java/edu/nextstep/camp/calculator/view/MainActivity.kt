@@ -1,21 +1,32 @@
-package edu.nextstep.camp.calculator
+package edu.nextstep.camp.calculator.view
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import edu.nextstep.camp.calculator.MainContract
+import edu.nextstep.camp.calculator.R
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
+import edu.nextstep.camp.calculator.domain.model.RecordStatement
+import edu.nextstep.camp.calculator.presenter.MainPresenter
 
 class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
     private lateinit var presenter: MainContract.Presenter
+    private val recordAdapter by lazy { RecordAdapter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        presenter = MainPresenter(this)
 
+        presenter = MainPresenter(this)
+        initRecyclerView()
         clickButtonListener()
+    }
+
+    private fun initRecyclerView() {
+        binding.recyclerView.adapter = recordAdapter
     }
 
     private fun clickButtonListener() {
@@ -36,6 +47,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         binding.buttonMultiply.setOnClickListener { appendOperator(getString(R.string.calculator_multiply)) }
         binding.buttonDelete.setOnClickListener { deleteLastElement() }
         binding.buttonEquals.setOnClickListener { calculateStatement() }
+        binding.buttonMemory.setOnClickListener { toggleMemoryView() }
     }
 
     private fun appendOperand(operand: String) {
@@ -51,14 +63,26 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     private fun calculateStatement() {
-        runCatching {
-            presenter.calculate(binding.textView.text.toString())
-        }.onFailure { e ->
-            Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_SHORT).show()
-        }
+        presenter.calculate(binding.textView.text.toString())
     }
 
     override fun showExpression(expression: String?) {
         binding.textView.text = expression
+    }
+
+    override fun showError(errorMessage: String) {
+        Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun toggleMemoryView() {
+        binding.recyclerView.isVisible = !binding.recyclerView.isVisible
+    }
+
+    override fun notifyRecordStatement(recordStatement: RecordStatement) {
+        recordAdapter.addStatement(recordStatement)
+    }
+
+    override fun showMemory(isVisible: Boolean) {
+        binding.recyclerView.isVisible = isVisible
     }
 }
