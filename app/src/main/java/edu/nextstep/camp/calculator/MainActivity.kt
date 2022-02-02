@@ -1,91 +1,69 @@
 package edu.nextstep.camp.calculator
 
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
-import edu.nextstep.camp.Calculator
-import edu.nextstep.camp.Expression
-import edu.nextstep.camp.Operator
+import edu.nextstep.camp.calculator.domain.Expression
+import edu.nextstep.camp.calculator.domain.Operator
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
-    private val calculator = Calculator()
     private var expression = Expression.EMPTY
+
+    private lateinit var presenter: MainContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.button0.setOnClickListener {
-            expression += 0
-            binding.textView.text = expression.toString()
+        presenter = MainPresenter(this)
+        setViewsClickListener()
+    }
+
+    override fun onViewUpdated(newExpression: Expression) {
+        binding.textView.text = newExpression.toString()
+        expression = newExpression
+    }
+
+    override fun onExpressionIncomplete() {
+        Toast.makeText(this, R.string.incomplete_expression, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setViewsClickListener() {
+        binding.run {
+            setNumberButtonsClickListener(
+                button0, button1, button2, button3, button4, button5, button6, button7, button8,
+                button9,
+            )
+            buttonPlus.setOnClickListener { setOperatorButtonClickListener(Operator.Plus) }
+            buttonMinus.setOnClickListener { setOperatorButtonClickListener(Operator.Minus) }
+            buttonMultiply.setOnClickListener { setOperatorButtonClickListener(Operator.Multiply) }
+            buttonDivide.setOnClickListener { setOperatorButtonClickListener(Operator.Divide) }
+            buttonDelete.setOnClickListener { setDeleteButtonClickListener() }
+            buttonEquals.setOnClickListener { setEqualsButtonClickListener() }
         }
-        binding.button1.setOnClickListener {
-            expression += 1
-            binding.textView.text = expression.toString()
-        }
-        binding.button2.setOnClickListener {
-            expression += 2
-            binding.textView.text = expression.toString()
-        }
-        binding.button3.setOnClickListener {
-            expression += 3
-            binding.textView.text = expression.toString()
-        }
-        binding.button4.setOnClickListener {
-            expression += 4
-            binding.textView.text = expression.toString()
-        }
-        binding.button5.setOnClickListener {
-            expression += 5
-            binding.textView.text = expression.toString()
-        }
-        binding.button6.setOnClickListener {
-            expression += 6
-            binding.textView.text = expression.toString()
-        }
-        binding.button7.setOnClickListener {
-            expression += 7
-            binding.textView.text = expression.toString()
-        }
-        binding.button8.setOnClickListener {
-            expression += 8
-            binding.textView.text = expression.toString()
-        }
-        binding.button9.setOnClickListener {
-            expression += 9
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonPlus.setOnClickListener {
-            expression += Operator.Plus
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonMinus.setOnClickListener {
-            expression += Operator.Minus
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonMultiply.setOnClickListener {
-            expression += Operator.Multiply
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonDivide.setOnClickListener {
-            expression += Operator.Divide
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonDelete.setOnClickListener {
-            expression = expression.removeLast()
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonEquals.setOnClickListener {
-            val result = calculator.calculate(expression.toString())
-            if (result == null) {
-                Toast.makeText(this, R.string.incomplete_expression, Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+    }
+
+    private fun setNumberButtonsClickListener(vararg buttons: Button) {
+        buttons.forEach { it ->
+            it.setOnClickListener {
+                presenter.addNumber(expression, (it as Button).text.toString())
             }
-            expression = Expression.EMPTY + result
-            binding.textView.text = result.toString()
         }
+    }
+
+    private fun setOperatorButtonClickListener(operator: Operator) {
+        presenter.addOperator(expression, operator)
+    }
+
+    private fun setDeleteButtonClickListener() {
+        presenter.delete(expression)
+    }
+
+    private fun setEqualsButtonClickListener() {
+        presenter.calculate(expression)
     }
 }

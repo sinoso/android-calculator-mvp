@@ -13,7 +13,6 @@ test {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
     testImplementation 'com.google.truth:truth:1.1.2'
 }
