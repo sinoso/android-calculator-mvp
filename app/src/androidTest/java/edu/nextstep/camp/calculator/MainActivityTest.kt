@@ -24,7 +24,7 @@ class MainActivityTest {
     val activityScenarioRule : ActivityScenarioRule<MainActivity> = ActivityScenarioRule(MainActivity::class.java)
 
     @Test
-    fun numberButtonClicked_thenShouldShowClickedNumber_whenRightBeforeClickNothing() {
+    fun givenRightBeforeClickNothing_whenNumberButtonClicked_thenShouldShowClickedNumber() {
         // when : 사용자가 피연산자 1 버튼을 누르면
         onView(withText("1")).perform(click())
 
@@ -33,7 +33,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun numberButtonClicked_thenShouldShowClickedNumber_whenRightBeforeClickOperation() {
+    fun givenRightBeforeClickOperation_whenNumberButtonClicked_thenShouldShowClickedNumber() {
         // given : 사용자가 이전에 연산자 기호를 눌렀을 때
         onView(withText("5")).perform(click())
         onView(withText("+")).perform(click())
@@ -46,7 +46,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun numberButtonClicked_thenShouldConnectClickedNumber_whenRightBeforeClickNumber() {
+    fun givenRightBeforeClickNumber_whenNumberButtonClicked_thenShouldConnectClickedNumber() {
         // given : 사용자가 이전에 숫자 5 버튼을 눌렀을 때
         onView(withText("5")).perform(click())
 
@@ -58,7 +58,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun operationButtonClicked_thenShouldShowNothing_whenRightBeforeClickNothing() {
+    fun givenRightBeforeClickNothing_whenOperationButtonClicked_thenShouldShowNothing() {
         // given : 입력된 피연사자 없을 때
         // when : 사용자가 연산자 기호를 누르면
         onView(withText("+")).perform(click())
@@ -68,7 +68,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun operationButtonClicked_thenShouldShowOperation_whenRightBeforeClickNumber() {
+    fun givenRightBeforeClickNumber_whenOperationButtonClicked_thenShouldShowOperation() {
         // given : 입력된 피연사자 있을 때
         onView(withText("1")).perform(click())
 
@@ -80,7 +80,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun operationButtonClicked_thenShouldReplaceOperation_whenRightBeforeClickOperation() {
+    fun givenRightBeforeClickOperation_whenOperationButtonClicked_thenShouldReplaceOperation() {
         // given : 입력된 피연사자 있을 때
         onView(withText("1")).perform(click())
         onView(withText("+")).perform(click())
@@ -93,7 +93,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun eraseButtonClicked_thenShouldShowNothing_whenRightBeforeClickNothing() {
+    fun givenRightBeforeClickNothing_whenEraseButtonClicked_thenShouldShowNothing() {
         // given : 입력된 수식이 없을 때
         // when : 사용자가 지우기 버튼을 누르면
         onView(withId(R.id.buttonDelete)).perform(click())
@@ -103,7 +103,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun eraseButtonClicked_thenShouldEraseLastInput_whenInputStatementIsPresent() {
+    fun givenInputStatementIsPresent_whenEraseButtonClicked_thenShouldEraseLastInput() {
         // given : 입력된 수식이 있을 때
         onView(withText("3")).perform(click())
         onView(withText("2")).perform(click())
@@ -142,7 +142,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun resultButtonClicked_thenShouldShowResultOfStatement_whenInputStatementIsPerfect() {
+    fun givenInputStatementIsPerfect_whenResultButtonClicked_thenShouldShowResultOfStatement() {
         // given : 입력된 수식이 완전할 때
         onView(withText("3")).perform(click())
         onView(withText("2")).perform(click())
@@ -157,7 +157,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun resultButtonClicked_thenDoNothing_whenInputStatementIsNotPerfect() {
+    fun givenInputStatementIsNotPerfect_whenResultButtonClicked_thenDoNothing() {
         // given : 입력된 수식이 완전하지 않을 때
         onView(withText("3")).perform(click())
         onView(withText("+")).perform(click())

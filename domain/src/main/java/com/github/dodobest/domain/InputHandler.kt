@@ -19,7 +19,7 @@ class InputHandler {
 
     fun handleInputNum (inputNum: String) {
         if (arraySize > 0 && expression.isNum(numAndSignArray.last().toCharArray().last())) {
-            numAndSignArray[arraySize-1] = (numAndSignArray.last().toInt() * 10 + inputNum.toInt()).toString()
+            numAndSignArray[arraySize-1] = (numAndSignArray.last().toDouble().toInt() * 10 + inputNum.toInt()).toString()
             return
         }
         numAndSignArray.add(inputNum)

@@ -3,14 +3,21 @@ package com.github.dodobest.domain
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 
 class CalculatorTest {
-    private val calculator = Calculator()
-    private val expression = Expression()
+    private lateinit var calculator: Calculator
+    private lateinit var expression: Expression
+
+    @Before
+    fun setUp() {
+        calculator = Calculator()
+        expression = Expression()
+    }
 
     @Test
     fun whenInputPlusStatement_thenShouldShowRightResult() {
