@@ -4,65 +4,50 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
-import edu.nextstep.camp.calculator.domain.Expression
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
-    private var expression = Expression.EMPTY
+    private lateinit var presenter: MainContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initLayout()
+        presenter = MainPresenter(this)
+
+        initListener()
     }
 
-    private fun initLayout() {
-        binding.button0.setOnClickListener { addOperand(binding.button0.text.toString()) }
-        binding.button1.setOnClickListener { addOperand(binding.button1.text.toString()) }
-        binding.button2.setOnClickListener { addOperand(binding.button2.text.toString()) }
-        binding.button3.setOnClickListener { addOperand(binding.button3.text.toString()) }
-        binding.button4.setOnClickListener { addOperand(binding.button4.text.toString()) }
-        binding.button5.setOnClickListener { addOperand(binding.button5.text.toString()) }
-        binding.button6.setOnClickListener { addOperand(binding.button6.text.toString()) }
-        binding.button7.setOnClickListener { addOperand(binding.button7.text.toString()) }
-        binding.button8.setOnClickListener { addOperand(binding.button8.text.toString()) }
-        binding.button9.setOnClickListener { addOperand(binding.button9.text.toString()) }
+    private fun initListener() {
+        with(binding) {
+            listOf(
+                button0, button1, button2, button3, button4,
+                button5, button6, button7, button8, button9
+            ).forEach { button ->
+                button.setOnClickListener {
+                    presenter.addOperand(button.text.toString())
+                }
+            }
 
-        binding.buttonDivide.setOnClickListener { addOperator(binding.buttonDivide.text.toString()) }
-        binding.buttonMultiply.setOnClickListener { addOperator(binding.buttonMultiply.text.toString()) }
-        binding.buttonMinus.setOnClickListener { addOperator(binding.buttonMinus.text.toString()) }
-        binding.buttonPlus.setOnClickListener { addOperator(binding.buttonPlus.text.toString()) }
-        binding.buttonDelete.setOnClickListener { removeLast() }
+            listOf(
+                buttonDivide, buttonMultiply, buttonMinus, buttonPlus
+            ).forEach { button ->
+                button.setOnClickListener {
+                    presenter.addOperator(button.text.toString())
+                }
+            }
 
-        binding.buttonEquals.setOnClickListener { getResult() }
-    }
-
-    private fun addOperand(rawOperand: String) {
-        expression = expression.addOperand(rawOperand)
-        setResult(expression.rawExpression)
-    }
-
-    private fun addOperator(rawOperator: String) {
-        expression = expression.addOperator(rawOperator)
-        setResult(expression.rawExpression)
-    }
-
-    private fun removeLast() {
-        expression = expression.removeLast()
-        setResult(expression.rawExpression)
-    }
-
-    private fun getResult() {
-        try {
-            setResult(expression.getResult().toString())
-        } catch (e: IllegalArgumentException) {
-            Toast.makeText(this@MainActivity, "완성되지 않은 수식입니다", Toast.LENGTH_SHORT).show()
+            buttonDelete.setOnClickListener { presenter.removeLast() }
+            buttonEquals.setOnClickListener { presenter.calculate() }
         }
     }
 
-    private fun setResult(result: String) {
-        binding.textView.text = result
+    override fun refreshExpressionView(expression: String) {
+        binding.textView.text = expression
+    }
+
+    override fun showErrorToast() {
+        Toast.makeText(this@MainActivity, "완성되지 않은 수식입니다", Toast.LENGTH_SHORT).show()
     }
 }
