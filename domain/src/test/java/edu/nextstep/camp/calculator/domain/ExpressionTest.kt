@@ -1,7 +1,8 @@
 package edu.nextstep.camp.calculator.domain
 
 import com.google.common.truth.Truth.assertThat
-import org.junit.jupiter.api.Test
+import org.junit.Test
+
 
 class ExpressionTest {
     @Test
