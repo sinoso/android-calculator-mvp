@@ -1,5 +1,7 @@
 package edu.nextstep.camp.calculator
 
+import edu.nextstep.camp.calculator.domain.Memory
+
 interface MainContract {
 
     interface View {
@@ -7,6 +9,11 @@ interface MainContract {
         fun refreshExpressionView(expression: String)
 
         fun showErrorToast()
+
+        fun showMemoryView(isVisible: Boolean)
+
+        fun addMemory(memory: Memory)
+
     }
 
     interface Presenter {
@@ -17,6 +24,8 @@ interface MainContract {
         fun removeLast()
 
         fun calculate()
+
+        fun toggleMemory()
 
     }
 

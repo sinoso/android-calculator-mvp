@@ -1,5 +1,6 @@
 package edu.nextstep.camp.calculator
 
+import edu.nextstep.camp.calculator.domain.Memory
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
@@ -53,7 +54,7 @@ class MainPresenterTest {
         verify { view.refreshExpressionView("2 +") }
     }
 
-    @DisplayName("입력된 수식이 2 + 3 * 5 일 때 = 버튼을 누르면 25.0 이 보여야 한다")
+    @DisplayName("입력된 수식이 2 + 3 × 5 일 때 = 버튼을 누르면 25.0 이 보여야 한다")
     @Test
     fun givenDisplayExpression_whenClickEquals_thenDisplayResult() {
         // given
@@ -83,5 +84,22 @@ class MainPresenterTest {
 
         // then
         verify { view.showErrorToast() }
+    }
+
+    @DisplayName("입력된 수식이 2 + 3 × 5 일 때 = 버튼을 누르면 2 + 3 × 5 = 25.0 기록이 추가되어야 한다")
+    @Test
+    fun givenDisplayExpression_whenClickMemory_thenDisplayMemory() {
+        // given
+        presenter.addOperand("2")
+        presenter.addOperator("+")
+        presenter.addOperand("3")
+        presenter.addOperator("×")
+        presenter.addOperand("5")
+
+        // when
+        presenter.calculate()
+
+        // then
+        verify { view.addMemory(Memory("2 + 3 × 5", "25.0")) }
     }
 }

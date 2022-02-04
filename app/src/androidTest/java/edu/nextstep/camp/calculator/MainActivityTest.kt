@@ -286,4 +286,20 @@ class MainActivityTest {
         // then: 계산기 텍스트에 30.0 으로 보여야 한다.
         onView(withId(R.id.textView)).check(matches(withText("35.0")))
     }
+
+    @Test
+    fun givenDisplayMemory_whenClickMinus_thenDisplayExpression() {
+        // given: 4 + 2 = 6 기록을 보고 있을 때
+        onView(withId(R.id.button4)).perform(click())
+        onView(withId(R.id.buttonPlus)).perform(click())
+        onView(withId(R.id.button2)).perform(click())
+        onView(withId(R.id.buttonEquals)).perform(click())
+        onView(withId(R.id.buttonMemory)).perform(click())
+
+        // when: 사용자가 - 버튼을 누르면
+        onView(withId(R.id.buttonMinus)).perform(click())
+
+        // then: 계산기 텍스트에 4 + 2 - 으로 보여야 한다.
+        onView(withId(R.id.textView)).check(matches(withText("4 + 2 -")))
+    }
 }
