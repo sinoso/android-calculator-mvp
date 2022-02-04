@@ -1,4 +1,4 @@
-package com.example.domain
+package edu.nextstep.domain
 
 class Calculator {
     fun calculate(rawExpression: String): Int? {

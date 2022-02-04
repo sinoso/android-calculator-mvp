@@ -1,7 +1,7 @@
 package edu.nextstep.camp.calculator.domain
 
-import com.example.domain.Expression
-import com.example.domain.Operator
+import edu.nextstep.domain.Expression
+import edu.nextstep.domain.Operator
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
