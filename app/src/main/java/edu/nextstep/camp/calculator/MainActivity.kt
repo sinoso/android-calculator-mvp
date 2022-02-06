@@ -3,26 +3,41 @@ package edu.nextstep.camp.calculator
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: HistoryAdapter
     private lateinit var presenter: MainContract.Presenter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        adapter = HistoryAdapter()
+        binding.recyclerView.adapter = adapter
+        presenter = MainPresenter(this)
+        setContentView(binding.root)
+        setListener()
+    }
 
     override fun showExpression(expression: String) = with(binding) {
         textView.text = expression
     }
 
-    override fun showExpressionError() {
+    override fun showExpressionError() =
         Toast.makeText(this, R.string.incomplete_expression, Toast.LENGTH_SHORT).show()
+
+    override fun notifyHistories(histories: List<HistoryModel>) = adapter.submitList(histories)
+    
+    override fun showHistory() = with(binding) {
+        textView.isVisible = false
+        recyclerView.isVisible = true
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        presenter = MainPresenter(this)
-        setContentView(binding.root)
-        setListener()
+    override fun hideHistory() = with(binding) {
+        textView.isVisible = true
+        recyclerView.isVisible = false
     }
 
     private fun setListener() = with(binding) {
@@ -73,6 +88,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
         buttonEquals.setOnClickListener {
             presenter.calculate()
+        }
+        buttonMemory.setOnClickListener {
+            presenter.toggleCalculator()
         }
     }
 }

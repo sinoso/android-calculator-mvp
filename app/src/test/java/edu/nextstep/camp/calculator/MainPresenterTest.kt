@@ -3,7 +3,6 @@ package edu.nextstep.camp.calculator
 import io.mockk.mockk
 import io.mockk.verify
 import io.mockk.verifySequence
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 
 import org.junit.jupiter.api.Test
@@ -14,15 +13,16 @@ internal class MainPresenterTest {
     private lateinit var presenter: MainContract.Presenter
     private val view: MainContract.View = mockk(relaxed = true)
 
-    @BeforeEach
-    fun setUp() {
-        presenter = MainPresenter(view)
-    }
-
     @ValueSource(strings = ["42", "123", "93562"])
     @ParameterizedTest(name = "{0}를 입력하면 View에 {0}를 그리도록 요청해야 한다.")
     fun inputNumber(number: String) {
+        // given
+        presenter = MainPresenter(view)
+
+        // when
         number.map(Char::digitToInt).forEach(presenter::inputNumber)
+
+        // then
         verify { view.showExpression(number) }
     }
 
@@ -30,8 +30,7 @@ internal class MainPresenterTest {
     @ParameterizedTest(name = "5 + {0}을 입력하면 5 + {0}을 그리도록 요청해야 한다.")
     fun inputNumberAfterOperator(number: String) {
         // given
-        presenter.inputNumber(5)
-        presenter.inputPlus()
+        presenter = MainPresenter(view, "5 + ")
 
         // when
         val expected = "5 + $number"
@@ -44,6 +43,9 @@ internal class MainPresenterTest {
     @DisplayName("입력된 피연산자가 없을 때, 연산자를 입력해도 변화가 없어야 한다.")
     @Test
     fun inputBlankOperator() {
+        // given
+        presenter = MainPresenter(view)
+
         // when
         val expected = ""
         presenter.inputPlus()
@@ -60,7 +62,7 @@ internal class MainPresenterTest {
     fun inputPlus() {
         // given
         val number = 7
-        presenter.inputNumber(number)
+        presenter = MainPresenter(view, number.toString())
 
         // when
         val expected = "$number +"
@@ -75,7 +77,7 @@ internal class MainPresenterTest {
     fun inputMinus() {
         // given
         val number = 7
-        presenter.inputNumber(number)
+        presenter = MainPresenter(view, number.toString())
 
         // when
         val expected = "$number -"
@@ -90,7 +92,7 @@ internal class MainPresenterTest {
     fun inputMultiply() {
         // given
         val number = 7
-        presenter.inputNumber(number)
+        presenter = MainPresenter(view, number.toString())
 
         // when
         val expected = "$number *"
@@ -105,7 +107,7 @@ internal class MainPresenterTest {
     fun inputDivide() {
         // given
         val number = 7
-        presenter.inputNumber(number)
+        presenter = MainPresenter(view, number.toString())
 
         // when
         val expected = "$number /"
@@ -119,10 +121,7 @@ internal class MainPresenterTest {
     @Test
     fun deleteLast() {
         // given
-        presenter.inputNumber(3)
-        presenter.inputNumber(2)
-        presenter.inputPlus()
-        presenter.inputNumber(1)
+        presenter = MainPresenter(view, "32 + 1")
 
         // when
         presenter.deleteLast()
@@ -133,29 +132,11 @@ internal class MainPresenterTest {
 
         // then
         verifySequence {
-            view.showExpression("3")
-            view.showExpression("32")
-            view.showExpression("32 +")
-            view.showExpression("32 + 1")
             view.showExpression("32 +")
             view.showExpression("32")
             view.showExpression("3")
             view.showExpression("")
             view.showExpression("")
-        }
-    }
-
-    @Test
-    fun deleteNothing() {
-        // when
-        val expected = ""
-        presenter.deleteLast()
-        presenter.deleteLast()
-
-        // then
-        verifySequence {
-            view.showExpression(expected)
-            view.showExpression(expected)
         }
     }
 
@@ -163,14 +144,7 @@ internal class MainPresenterTest {
     @Test
     fun calculate() {
         // given
-        val expression = "2 + 3 * 4 / 2"
-        presenter.inputNumber(2)
-        presenter.inputPlus()
-        presenter.inputNumber(3)
-        presenter.inputMultiply()
-        presenter.inputNumber(4)
-        presenter.inputDivide()
-        presenter.inputNumber(2)
+        presenter = MainPresenter(view, "2 + 3 * 4 / 2")
 
         // when
         val expected = "10"
@@ -184,14 +158,50 @@ internal class MainPresenterTest {
     @Test
     fun calculateIncompleteExpression() {
         // given
-        presenter.inputNumber(3)
-        presenter.inputPlus()
-        val expression = "3 +"
+        presenter = MainPresenter(view, "3 + ")
 
         // when
         presenter.calculate()
 
         // then
         verify { view.showExpressionError() }
+    }
+
+    @DisplayName("계산기가 비활성화 되면, 계산기가 동작하지 않아야 한다.")
+    @Test
+    fun disableCalculator() {
+        // given
+        presenter = MainPresenter(view, calculatorDisabled = true)
+
+        // when
+        presenter.inputNumber(1)
+        presenter.inputPlus()
+        presenter.inputMinus()
+        presenter.inputMultiply()
+        presenter.inputDivide()
+        presenter.deleteLast()
+        presenter.calculate()
+
+        // then
+        verify(exactly = 0) { view.showExpression(any()) }
+    }
+
+    @DisplayName("계산기가 활성화되면, 계산기가 동작해야 한다.")
+    @Test
+    fun enableCalculator() {
+        // given
+        presenter = MainPresenter(view, calculatorDisabled = false)
+
+        // when
+        presenter.inputNumber(1)
+        presenter.inputPlus()
+        presenter.inputMinus()
+        presenter.inputMultiply()
+        presenter.inputDivide()
+        presenter.deleteLast()
+        presenter.calculate()
+
+        // then
+        verify(exactly = 7) { view.showExpression(any()) }
     }
 }

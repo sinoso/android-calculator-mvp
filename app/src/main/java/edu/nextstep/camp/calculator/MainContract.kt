@@ -4,6 +4,9 @@ interface MainContract {
     interface View {
         fun showExpression(expression: String)
         fun showExpressionError()
+        fun notifyHistories(histories: List<HistoryModel>)
+        fun showHistory()
+        fun hideHistory()
     }
 
     interface Presenter {
@@ -14,5 +17,6 @@ interface MainContract {
         fun inputDivide()
         fun deleteLast()
         fun calculate()
+        fun toggleCalculator()
     }
 }
