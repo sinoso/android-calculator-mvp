@@ -1,6 +1,7 @@
 package edu.nextstep.camp.calculator
 
 import edu.nextstep.camp.calculator.domain.Expression
+import edu.nextstep.camp.calculator.domain.Memories
 import edu.nextstep.camp.calculator.domain.Operator
 import io.mockk.mockk
 import io.mockk.verify
@@ -10,11 +11,13 @@ import org.junit.jupiter.api.Test
 class MainPresenterTest {
     private lateinit var presenter: MainContract.Presenter
     private lateinit var view: MainContract.View
+    private lateinit var memories: Memories
 
     @BeforeEach
     fun setup() {
         view = mockk(relaxed = true)
-        presenter = MainPresenter(view)
+        memories = mockk(relaxed = true)
+        presenter = MainPresenter(view, memories)
     }
 
     @Test
@@ -59,7 +62,7 @@ class MainPresenterTest {
     @Test
     fun `2 더하기 10을 계산하면 12가 보여야 한다`() {
         // given
-        val expression  = Expression(listOf(2, Operator.Plus, 10))
+        val expression = Expression(listOf(2, Operator.Plus, 10))
 
         // when
         presenter.calculate(expression)
@@ -67,5 +70,16 @@ class MainPresenterTest {
         // then
         val expected = Expression(listOf(12))
         verify { view.onViewUpdated(expected) }
+    }
+
+    @Test
+    fun `viewType을 toggle하면 onViewTypeChanged() 콜백이 호출되고 viewType이 MemoryView로 들어온다`() {
+        // when
+        presenter.toggleViewType()
+
+        // then
+        val expectedViewType = MemoryView
+        val expectedMemory = memories
+        verify { view.onViewTypeChanged(expectedViewType, expectedMemory) }
     }
 }
