@@ -1,0 +1,151 @@
+package edu.nextstep.camp.calculator
+
+import com.google.common.truth.Truth.*
+import edu.nextstep.camp.calculator.domain.Expression
+import edu.nextstep.camp.calculator.domain.Operator
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.slot
+import io.mockk.verify
+import org.junit.Before
+import org.junit.Test
+
+class CalculatorPresenterTest {
+    @MockK
+    private lateinit var view: CalculatorContract.View
+
+    @InjectMockKs
+    private lateinit var presenter: CalculatorPresenter
+
+    @Before
+    fun setUp() {
+        MockKAnnotations.init(this, relaxUnitFun = true)
+    }
+
+    @Test
+    fun `빈 수식에 숫자가 입력되면 수식에 추가되고 수식을 갱신하는 함수를 호출한다`() {
+        // given
+        val expressionSlot = slot<Expression>()
+        every { view.refreshExpression(capture(expressionSlot)) } answers { nothing }
+        // when
+        presenter.addExpressionElement(1)
+        // then
+        val actualExpression = expressionSlot.captured
+        assertThat(actualExpression.toString()).isEqualTo("1")
+        verify { view.refreshExpression(actualExpression) }
+    }
+
+    @Test
+    fun `빈 수식에 연산자가 입력되면 수식을 갱신하는 함수를 호출하지 않는다`() {
+        // when :
+        presenter.addExpressionElement(Operator.Plus)
+        // then :
+        verify(exactly = 0) { view.refreshExpression(any()) }
+    }
+
+    @Test
+    fun `수식 1 에서 2를 추가하면 수식을 12로 갱신하는 함수를 호출한다`() {
+        // given :
+        val expressionSlot = slot<Expression>()
+        presenter = CalculatorPresenter(view, Expression(listOf(1)))
+        every { view.refreshExpression(capture(expressionSlot)) } answers { nothing }
+        // when :
+        presenter.addExpressionElement(2)
+        // then :
+        val actualExpression = expressionSlot.captured
+        assertThat(actualExpression.toString()).isEqualTo("12")
+        verify { view.refreshExpression(actualExpression) }
+    }
+
+    @Test
+    fun `수식 1 에서 + 를 추가하면 수식을 1 + 로 갱신하는 함수를 호출한다`() {
+        // given :
+        val expressionSlot = slot<Expression>()
+        presenter = CalculatorPresenter(view, Expression(listOf(1)))
+        every { view.refreshExpression(capture(expressionSlot)) } answers { nothing }
+        // when :
+        presenter.addExpressionElement(Operator.Plus)
+        // then :
+        val actualExpression = expressionSlot.captured
+        assertThat(actualExpression.toString()).isEqualTo("1 +")
+        verify { view.refreshExpression(actualExpression) }
+    }
+
+    @Test
+    fun `수식 1 + 에서 -를 추가하면 수식을 1 - 로 갱신하는 함수를 호출한다`() {
+        // given :
+        val expressionSlot = slot<Expression>()
+        presenter = CalculatorPresenter(view, Expression(listOf(1, Operator.Plus)))
+        every { view.refreshExpression(capture(expressionSlot)) } answers { nothing }
+        // when :
+        presenter.addExpressionElement(Operator.Minus)
+        // then :
+        val actualExpression = expressionSlot.captured
+        assertThat(actualExpression.toString()).isEqualTo("1 -")
+        verify { view.refreshExpression(actualExpression) }
+    }
+
+    @Test
+    fun `수식 12 에서 마지막을 제거하면 수식을 1로 갱신하는 함수를 호출한다`() {
+        // given :
+        val expressionSlot = slot<Expression>()
+        presenter = CalculatorPresenter(view, Expression(listOf(1, 2)))
+        every { view.refreshExpression(capture(expressionSlot)) } answers { nothing }
+        // when :
+        presenter.removeLastExpressionElement()
+        // then :
+        val actualExpression = expressionSlot.captured
+        assertThat(actualExpression.toString()).isEqualTo("1")
+        verify { view.refreshExpression(actualExpression) }
+    }
+
+    @Test
+    fun `1 +가 입력된 수식에서 마지막을 제거하면 뷰에 1 로 갱신하는 함수를 호출한다`() {
+        // given :
+        val expressionSlot = slot<Expression>()
+        presenter = CalculatorPresenter(view, Expression(listOf(1, Operator.Plus)))
+        every { view.refreshExpression(capture(expressionSlot)) } answers { nothing }
+        // when :
+        presenter.removeLastExpressionElement()
+        // then :
+        val actualExpression = expressionSlot.captured
+        assertThat(actualExpression.toString()).isEqualTo("1")
+        verify { view.refreshExpression(actualExpression) }
+    }
+
+    @Test
+    fun `빈 수식에서 마지막을 제거하면 뷰에 갱신 함수를 호출하지 않는다`() {
+        // given :
+        // when :
+        presenter.removeLastExpressionElement()
+        // then :
+        verify(exactly = 0) { view.refreshExpression(any()) }
+    }
+
+    @Test
+    fun `완성된 수식에서 결과를 구하면 수식을 결과로 갱신하는 함수를 호출한다`() {
+        // given :
+        val expressionSlot = slot<Expression>()
+        presenter = CalculatorPresenter(view, Expression(listOf(5, Operator.Multiply, 6)))
+        every { view.refreshExpression(capture(expressionSlot)) } answers { nothing }
+        // when :
+        presenter.calculateExpression()
+        // then :
+        val actualExpression = expressionSlot.captured
+        assertThat(actualExpression.toString()).isEqualTo("30")
+        verify { view.refreshExpression(actualExpression) }
+    }
+
+    @Test
+    fun `미완성 수식에서 결과를 구하면 수식을 갱신하는 함수는 호출하지 않고, 잘못된 수식을 알리는 함수를 호출한다`() {
+        // given :
+        presenter = CalculatorPresenter(view, Expression(listOf(5, Operator.Multiply)))
+        // when :
+        presenter.calculateExpression()
+        // then :
+        verify(exactly = 0) { view.refreshExpression(any()) }
+        verify(exactly = 1) { view.notifyInCompleteExpression() }
+    }
+}
