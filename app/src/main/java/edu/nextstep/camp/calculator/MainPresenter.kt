@@ -3,9 +3,10 @@ package edu.nextstep.camp.calculator
 import com.github.dodobest.domain.InputHandler
 
 class MainPresenter(
-    private val view: MainContract.View
+    private val view: MainContract.View,
+    private val resultAdapter: ResultAdapter,
+    private val inputHandler: InputHandler = InputHandler(),
 ) : MainContract.Presenter {
-    private val inputHandler = InputHandler()
 
     override fun handleInputNum(inputNum: String) {
         inputHandler.handleInputNum(inputNum)
@@ -23,12 +24,15 @@ class MainPresenter(
     }
 
     override fun handleEquals() {
-        if (inputHandler.checkExpressionCanCalculated()) {
-            inputHandler.handleEquals()
-            view.refreshTextView(inputHandler.getString())
-            return
+        if (!inputHandler.checkExpressionCanCalculated()) {
+            throw IllegalArgumentException()
         }
 
-        view.showToastMessage("완성되지 않은 수식입니다")
+        val expression = inputHandler.getString()
+        inputHandler.handleEquals()
+        val result = inputHandler.getString()
+
+        view.refreshTextView(result)
+        resultAdapter.add(expression, "= $result")
     }
 }

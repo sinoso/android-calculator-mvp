@@ -1,20 +1,11 @@
 package edu.nextstep.camp.calculator
 
-import android.view.View
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.*
-import androidx.test.espresso.ViewAction
-import androidx.test.espresso.ViewAssertion
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.*
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
 
-import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 
@@ -153,7 +144,7 @@ class MainActivityTest {
         onView(withText("=")).perform(click())
 
         // then : 화면에 입력된 수식의 결과가 보여야 한다
-        onView(withId(R.id.textView)).check(matches(withText("33.0")))
+        onView(withId(R.id.textView)).check(matches(withText("33")))
     }
 
     @Test

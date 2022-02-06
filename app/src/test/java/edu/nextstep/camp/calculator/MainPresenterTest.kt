@@ -1,19 +1,23 @@
 package edu.nextstep.camp.calculator
 
+import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
+import org.junit.Assert.*
 
 class MainPresenterTest {
     private lateinit var presenter: MainContract.Presenter
     private lateinit var view: MainContract.View
+    private lateinit var resultAdapter: ResultAdapter
 
     @Before
     fun setUp() {
         view = mockk()
-        presenter = MainPresenter(view)
+        resultAdapter = mockk()
+        presenter = MainPresenter(view, resultAdapter)
     }
 
     @Test
@@ -94,40 +98,45 @@ class MainPresenterTest {
     }
 
     @Test
-    fun `이전에 입력 3+2x5나누기2-2가 주어졌을 때, =를 누르면 3을 보여준다`() {
+    fun `이전에 입력 3+2x4나누기2-5가 주어졌을 때, =를 누르면 5을 보여준다`() {
         // given
         every { view.refreshTextView(any()) } answers { nothing }
+        every { resultAdapter.add(any(), any()) } answers { nothing }
+
         presenter.handleInputNum("3")
         presenter.handleInputArithmetic("+")
         presenter.handleInputNum("2")
         presenter.handleInputArithmetic("*")
-        presenter.handleInputNum("5")
+        presenter.handleInputNum("4")
         presenter.handleInputArithmetic("/")
         presenter.handleInputNum("2")
         presenter.handleInputArithmetic("-")
-        presenter.handleInputNum("2")
+        presenter.handleInputNum("5")
 
         // when
         presenter.handleEquals()
 
         // then
-        verify { view.refreshTextView("3") }
+        verify { view.refreshTextView("5") }
     }
 
     @Test
-    fun `이전에 입력 3+2x가 주어졌을 때, =를 누르면 토스트 메시지를 보여준다`() {
+    fun `이전에 입력 3+2x가 주어졌을 때, =를 누르면 IllegalArgumentException 을 발생시킨다`() {
         // given
         every { view.refreshTextView(any()) } answers { nothing }
         every { view.showToastMessage(any()) } answers { nothing }
+
         presenter.handleInputNum("3")
         presenter.handleInputArithmetic("+")
         presenter.handleInputNum("2")
         presenter.handleInputArithmetic("*")
 
         // when
-        presenter.handleEquals()
+        val thrown: IllegalArgumentException = assertThrows(
+            IllegalArgumentException::class.java
+        ) { presenter.handleEquals() }
 
         // then
-        verify { view.showToastMessage("완성되지 않은 수식입니다") }
+        assertThat(thrown).isInstanceOf(IllegalArgumentException::class.java)
     }
 }
