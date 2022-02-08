@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="edu.nextstep.comp.calculator.domain.ExpressionTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2022-02-05T17:14:24" hostname="PARKui-MacBookPro.local" time="0.031">
+  <properties/>
+  <testcase name="빈 수식일 때, 피연산자를 추가할 수 있어야한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.02"/>
+  <testcase name="빈 수식일 때, + 연산자를 추가할 수 없어야 한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.001"/>
+  <testcase name="'32 +' 수식이 있을 때, 마지막 +를 제거할 수 있어야 한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.007"/>
+  <testcase name="'3' 수식이 있을 때, 마지막 3을 제거할 수 있어야 한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.0"/>
+  <testcase name="'8 +' 수식이 있을 때, + 연산자를 - 연산자로 변경할 수 있어야 한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.0"/>
+  <testcase name="빈 수식일 때, 마지막을 제거해도 빈 수식이어야 한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.0"/>
+  <testcase name="'1' 수식이 있을 때, + 연산자를 추가할 수 있어야 한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.0"/>
+  <testcase name="'32 + 1' 수식이 있을 때, 마지막 1을 제거할 수 있어야 한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.0"/>
+  <testcase name="'8' 수식이 있을 때, 9를 입력하면 89로 바뀌어야 한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.001"/>
+  <testcase name="'32' 수식이 있을 때, 마지막 2를 제거할 수 있어야 한다()" classname="edu.nextstep.comp.calculator.domain.ExpressionTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
