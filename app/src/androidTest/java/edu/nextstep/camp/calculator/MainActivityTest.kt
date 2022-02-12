@@ -2,14 +2,12 @@ package edu.nextstep.camp.calculator
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import edu.nextstep.camp.calculator.AndroidTestHelper.onViewMatchText
-import edu.nextstep.camp.calculator.AndroidTestHelper.onViewsClick
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class MainActivityTest {
+class MainActivityTest : AndroidViewTest {
 
     @get:Rule
     val activityScenarioRule = ActivityScenarioRule(MainActivity::class.java)

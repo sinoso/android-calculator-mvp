@@ -1,27 +1,27 @@
 package edu.nextstep.camp.calculator
 
-import edu.nextstep.camp.calculator.domain.Calculator
-import edu.nextstep.camp.calculator.domain.Expression
-import edu.nextstep.camp.calculator.domain.Operator
+import edu.nextstep.camp.calculator.domain.*
 
 class MainPresenter(private val view: MainContract.View) : MainContract.Presenter {
 
     private val calculator = Calculator()
     private var expression = Expression.EMPTY
+    private var memory = Memory.EMPTY
+    private var mode: Mode = expression
 
     override fun addToExpression(operand: Int) {
         expression += operand
-        view.showExpression(expression.toString())
+        updateExpression()
     }
 
     override fun addToExpression(operator: Operator) {
         expression += operator
-        view.showExpression(expression.toString())
+        updateExpression()
     }
 
     override fun removeLastInExpression() {
         expression = expression.removeLast()
-        view.showExpression(expression.toString())
+        updateExpression()
     }
 
     override fun evaluateByExpression() {
@@ -30,7 +30,26 @@ class MainPresenter(private val view: MainContract.View) : MainContract.Presente
             return
         }
 
+        memory += Memory.Item(expression.toString(), result)
         expression = Expression.EMPTY + result
+
+        updateExpression()
+    }
+
+    override fun toggleMode() {
+        when (mode) {
+            is Expression -> updateMemory()
+            is Memory -> updateExpression()
+        }
+    }
+
+    private fun updateMemory() {
+        mode = memory
+        view.showMemory(memory.items)
+    }
+
+    private fun updateExpression() {
+        mode = expression
         view.showExpression(expression.toString())
     }
 }

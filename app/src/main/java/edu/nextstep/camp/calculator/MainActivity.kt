@@ -1,11 +1,15 @@
 package edu.nextstep.camp.calculator
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
+import edu.nextstep.camp.calculator.domain.Memory
 import edu.nextstep.camp.calculator.domain.Operator
+import edu.nextstep.camp.calculator.memory.MemoryAdapter
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
@@ -21,6 +25,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     private fun setupUi() {
+        setupExpressionMode()
+        setupMemoryMode()
+    }
+
+    private fun setupExpressionMode() {
         setupButtonNumbers()
         setupButtonOperators()
         setupButtonDelete()
@@ -73,11 +82,37 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    private fun setupMemoryMode() {
+        setupRecyclerView()
+        setupButtonMemory()
+    }
+
+    private fun setupRecyclerView() {
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = MemoryAdapter()
+    }
+
+    private fun setupButtonMemory() {
+        binding.buttonMemory.setOnClickListener {
+            presenter.toggleMode()
+        }
+    }
+
     override fun showExpression(expression: String) {
+        binding.recyclerView.visibility = View.INVISIBLE
+        binding.textView.visibility = View.VISIBLE
+
         binding.textView.text = expression
     }
 
     override fun showError() {
         Toast.makeText(this, R.string.incomplete_expression, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showMemory(items: List<Memory.Item>) {
+        binding.recyclerView.visibility = View.VISIBLE
+        binding.textView.visibility = View.INVISIBLE
+
+        (binding.recyclerView.adapter as MemoryAdapter).submitList(items)
     }
 }
