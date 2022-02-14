@@ -33,6 +33,8 @@ data class Expression(
         }
     }
 
+    fun isEmpty() = values.isEmpty()
+
     override fun toString(): String {
         return values.joinToString(" ") {
             if (it is Operator) it.sign else it.toString()

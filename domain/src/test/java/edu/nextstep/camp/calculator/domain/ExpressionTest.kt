@@ -1,6 +1,6 @@
 package edu.nextstep.camp.calculator.domain
 
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.*
 import org.junit.jupiter.api.Test
 
 class ExpressionTest {
@@ -138,5 +138,31 @@ class ExpressionTest {
 
         // then
         assertThat(actual.toString()).isEqualTo("")
+    }
+
+    @Test
+    fun `주어진 수식이 비어있다면 수식의 Empty 여부에서 true 가 반환된다`() {
+        // given :
+        val expression = Expression.EMPTY
+        // when :
+        val actual = expression.isEmpty()
+        // then :
+        assertThat(actual).isTrue()
+    }
+
+    @Test
+    fun `주어진 수식 있다면 수식의 Empty 여부에서 false 가 나온다`() {
+        // given :
+        val expression = Expression(
+            listOf(
+                32,
+                Operator.Plus,
+                1
+            )
+        )
+        // when :
+        val actual = expression.isEmpty()
+        // then :
+        assertThat(actual).isFalse()
     }
 }
