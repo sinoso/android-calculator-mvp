@@ -1,8 +1,7 @@
 package edu.nextstep.camp.calculator
 
 import com.google.common.truth.Truth.assertThat
-import edu.nextstep.camp.calculator.domain.Expression
-import edu.nextstep.camp.calculator.domain.Operator
+import edu.nextstep.camp.calculator.domain.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -54,12 +53,12 @@ internal class MainPresenterTest {
     @MethodSource("provideArgumentForSequenceInputOperandTest")
     @DisplayName("{0} 입력된 상태에서 피연산자 {1}를 입력하면 {2} 된다")
     fun sequenceInputOperandTest(initExpression: Expression, inputs: List<Int>, expected: String) {
-        val presenterHasInitExpression = MainPresenter(mockView, expression = initExpression)
+        val presenterWithInitExpression = MainPresenter(mockView, expression = initExpression)
         val expressionSlot = slot<Expression>()
         every { mockView.showExpression(capture(expressionSlot)) } returns mockk()
 
         inputs.forEach {
-            presenterHasInitExpression.addToExpression(it)
+            presenterWithInitExpression.addToExpression(it)
         }
 
         assertThat(expressionSlot.captured.toString()).isEqualTo(expected)
@@ -69,12 +68,12 @@ internal class MainPresenterTest {
     @MethodSource("provideArgumentForSequenceInputOperatorTest")
     @DisplayName("{0} 입력된 상태에서 연산자 {1}를 입력하면 {2} 된다")
     fun sequenceInputOperatorTest(initExpression: Expression, inputs: List<Operator>, expected: String) {
-        val presenterHasInitExpression = MainPresenter(mockView, expression = initExpression)
+        val presenterWithInitExpression = MainPresenter(mockView, expression = initExpression)
         val expressionSlot = slot<Expression>()
         every { mockView.showExpression(capture(expressionSlot)) } returns mockk()
 
         inputs.forEach {
-            presenterHasInitExpression.addToExpression(it)
+            presenterWithInitExpression.addToExpression(it)
         }
 
         assertThat(expressionSlot.captured.toString()).isEqualTo(expected)
@@ -84,11 +83,11 @@ internal class MainPresenterTest {
     @MethodSource("provideArgumentForDeleteTest")
     @DisplayName("{0} 입력된 상태에서 삭제(delete)하면 {1} 된다")
     fun deleteTest(initExpression: Expression, expected: String) {
-        val presenterHasInitExpression = MainPresenter(mockView, expression = initExpression)
+        val presenterWithInitExpression = MainPresenter(mockView, expression = initExpression)
         val expressionSlot = slot<Expression>()
         every { mockView.showExpression(capture(expressionSlot)) } returns mockk()
 
-        presenterHasInitExpression.delete()
+        presenterWithInitExpression.delete()
 
         assertThat(expressionSlot.captured.toString()).isEqualTo(expected)
     }
@@ -97,11 +96,11 @@ internal class MainPresenterTest {
     @MethodSource("provideArgumentForCalculateTest")
     @DisplayName("{0} 입력된 상태에서 계산하면 {1} 된다")
     fun calculateTest(initExpression: Expression, expected: String) {
-        val presenterHasInitExpression = MainPresenter(mockView, expression = initExpression)
+        val presenterWithInitExpression = MainPresenter(mockView, expression = initExpression)
         val expressionSlot = slot<Expression>()
         every { mockView.showExpression(capture(expressionSlot)) } returns mockk()
 
-        presenterHasInitExpression.calculate()
+        presenterWithInitExpression.calculate()
 
         assertThat(expressionSlot.captured.toString()).isEqualTo(expected)
     }
@@ -110,17 +109,55 @@ internal class MainPresenterTest {
     @Test
     @DisplayName("유효하지 않은 수식을 계산하면 IllegalArgumentException 를 파라메터로 onError 메소드를 호출한다.  ")
     fun invalidExpressionCalculateTest() {
-        val presenterHasInitExpression = MainPresenter(mockView, expression = Expression(listOf(1, Operator.Plus)))
+        val presenterWithInitExpression = MainPresenter(mockView, expression = Expression(listOf(1, Operator.Plus)))
 
         val exceptionSlot = slot<Exception>()
         val expressionSlot = slot<Expression>()
         every { mockView.showExpression(capture(expressionSlot)) } returns mockk()
         every { mockView.onError(capture(exceptionSlot)) } returns mockk()
 
-        presenterHasInitExpression.calculate()
+        presenterWithInitExpression.calculate()
 
         assertThat(exceptionSlot.captured).isInstanceOf(IllegalArgumentException::class.java)
     }
+
+    @Test
+    @DisplayName("calculate 를 하면 결과가 저장된다.")
+    fun calculateHistorySaveTest() {
+        val presenterWithInitExpression = MainPresenter(mockView, expression = Expression(listOf(15, Operator.Multiply, 12)))
+        val historySlot = slot<List<String>>()
+        every { mockView.showCalculateHistory(capture(historySlot)) } returns mockk()
+        every { mockView.showExpression(any()) } returns mockk()
+
+        presenterWithInitExpression.calculate()
+        presenterWithInitExpression.displayCalculateHistory()
+
+        assertThat(historySlot.captured).containsExactly("15 * 12\n= 180")
+    }
+
+    @Test
+    @DisplayName("calculate 하여 저장되어 있던 결과가 리스트 형태로 보여진다.")
+    fun calculateHistoryDisplayTest() {
+        val presenterWithInits = MainPresenter(
+            view = mockView,
+            expression = Expression(listOf(15, Operator.Multiply, 12)),
+            calculateStorage = getCalculateStorageWithSomeHistory(),
+        )
+        val historySlot = slot<List<String>>()
+        every { mockView.showCalculateHistory(capture(historySlot)) } returns mockk()
+
+        presenterWithInits.displayCalculateHistory()
+
+        assertThat(historySlot.captured).containsExactly("12 + 3\n= 15", "15 * 12\n= 180")
+    }
+
+    private fun getCalculateStorageWithSomeHistory(): CalculateStorage =
+        MemoryCalculateStorage(
+            listOf(
+                HistoryItem(Expression(listOf(12, Operator.Plus, 3)), Expression(listOf(15))),
+                HistoryItem(Expression(listOf(15, Operator.Multiply, 12)), Expression(listOf(180)))
+            )
+        )
 
     companion object {
         @JvmStatic

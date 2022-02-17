@@ -1,5 +1,6 @@
 package edu.nextstep.camp.calculator
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +23,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         initOperandClickListener()
         initOperatorClickListener()
+        binding.buttonMemory.setOnClickListener {
+            presenter.displayCalculateHistory()
+        }
 
         binding.buttonDelete.setOnClickListener {
             presenter.delete()
@@ -58,9 +62,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             binding.button7,
             binding.button8,
             binding.button9
-        ).forEachIndexed { index, button ->
-            button.setOnClickListener {
-                presenter.addToExpression(index)
+        ).forEach { btn ->
+            btn.setOnClickListener {
+                val operandString = btn.text.toString()
+                presenter.addToExpression(operandString.toInt())
             }
         }
     }
@@ -76,5 +81,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             exception.message ?: getString(R.string.unknown_exception)
         }
         Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show()
+    }
+
+
+    override fun showCalculateHistory(history: List<String>) {
+        AlertDialog.Builder(this)
+            .apply { setMessage(history.joinToString(separator = "\n\n")) }
+            .create()
+            .show()
     }
 }
