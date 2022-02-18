@@ -1,41 +1,42 @@
 package edu.nextstep.camp.calculator
 
-import edu.nextstep.camp.calculator.domain.Calculator
-import edu.nextstep.camp.calculator.domain.Expression
-import edu.nextstep.camp.calculator.domain.Operator
+import edu.nextstep.camp.calculator.domain.*
 
 class MainPresenter(
-    private val view: MainContract.View
+    private val view: MainContract.View,
+    private val histories: Histories
 ) : MainContract.Presenter {
-    private var expression = Expression.EMPTY
     private val calculator = Calculator()
+    private var expression: Expression = Expression.EMPTY
 
-    init {
-        view.refreshCount(expression.toString())
+    override fun addToExpression(operand: Int) {
+        expression += operand
+        view.showExpression(expression)
     }
 
-    override fun inputNumber(value: Int) {
-        expression += value
-        view.refreshCount(expression.toString())
-    }
-
-    override fun inputOperator(operator: Operator) {
+    override fun addToExpression(operator: Operator) {
         expression += operator
-        view.refreshCount(expression.toString())
+        view.showExpression(expression)
     }
 
     override fun removeLast() {
         expression = expression.removeLast()
-        view.refreshCount(expression.toString())
+        view.showExpression(expression)
     }
 
     override fun calculate() {
         val result = calculator.calculate(expression.toString())
         if (result == null) {
-            view.showToast(R.string.incomplete_expression)
+            view.showIncompleteExpressionError()
             return
         }
+        histories.add(expression,result)
         expression = Expression.EMPTY + result
-        view.refreshCount(result.toString())
+        view.showResult(result)
     }
+
+    override fun setHistoryData() {
+        view.showHistory(histories)
+    }
+
 }

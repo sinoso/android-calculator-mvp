@@ -1,74 +1,82 @@
 package edu.nextstep.camp.calculator
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
+import edu.nextstep.camp.calculator.domain.Expression
+import edu.nextstep.camp.calculator.domain.Histories
 import edu.nextstep.camp.calculator.domain.Operator
 
 class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var presenter: MainContract.Presenter
+    override lateinit var presenter: MainContract.Presenter
+    private val historyAdapter = HistoryAdapter()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter = MainPresenter(this)
+        binding.recyclerView.adapter = historyAdapter
+
+
+        presenter = MainPresenter(this, Histories())
 
         binding.button0.setOnClickListener {
-            presenter.inputNumber(0)
+            presenter.addToExpression(0)
 
         }
         binding.button1.setOnClickListener {
-            presenter.inputNumber(1)
+            presenter.addToExpression(1)
 
         }
         binding.button2.setOnClickListener {
-            presenter.inputNumber(2)
+            presenter.addToExpression(2)
 
         }
         binding.button3.setOnClickListener {
-            presenter.inputNumber(3)
+            presenter.addToExpression(3)
 
         }
         binding.button4.setOnClickListener {
-            presenter.inputNumber(4)
+            presenter.addToExpression(4)
 
         }
         binding.button5.setOnClickListener {
-            presenter.inputNumber(5)
+            presenter.addToExpression(5)
 
         }
         binding.button6.setOnClickListener {
-            presenter.inputNumber(6)
+            presenter.addToExpression(6)
 
         }
         binding.button7.setOnClickListener {
-            presenter.inputNumber(7)
+            presenter.addToExpression(7)
 
         }
         binding.button8.setOnClickListener {
-            presenter.inputNumber(8)
+            presenter.addToExpression(8)
 
         }
         binding.button9.setOnClickListener {
-            presenter.inputNumber(9)
+            presenter.addToExpression(9)
 
         }
         binding.buttonPlus.setOnClickListener {
-            presenter.inputOperator(Operator.Plus)
+            presenter.addToExpression(Operator.Plus)
         }
         binding.buttonMinus.setOnClickListener {
-            presenter.inputOperator(Operator.Minus)
+            presenter.addToExpression(Operator.Minus)
         }
         binding.buttonMultiply.setOnClickListener {
-            presenter.inputOperator(Operator.Multiply)
+            presenter.addToExpression(Operator.Multiply)
 
         }
         binding.buttonDivide.setOnClickListener {
-            presenter.inputOperator(Operator.Divide)
+            presenter.addToExpression(Operator.Divide)
 
         }
         binding.buttonDelete.setOnClickListener {
@@ -78,13 +86,30 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         binding.buttonEquals.setOnClickListener {
             presenter.calculate()
         }
+        binding.buttonMemory.setOnClickListener {
+            presenter.setHistoryData()
+        }
     }
 
-    override fun refreshCount(value: String) {
-        binding.textView.text = value
+    override fun showIncompleteExpressionError() {
+        Toast.makeText(this, R.string.incomplete_expression, Toast.LENGTH_SHORT).show()
     }
 
-    override fun showToast(message: Int) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    override fun showHistory(histories: Histories) {
+        if (binding.recyclerView.visibility == View.GONE) {
+            historyAdapter.submitList(histories.items)
+            binding.recyclerView.visibility = View.VISIBLE
+        } else {
+            binding.recyclerView.visibility = View.GONE
+        }
+
+    }
+
+    override fun showExpression(expression: Expression) {
+        binding.textView.text = expression.toString()
+    }
+
+    override fun showResult(result: Int) {
+        binding.textView.text = result.toString()
     }
 }
