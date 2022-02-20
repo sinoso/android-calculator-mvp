@@ -3,6 +3,7 @@ package edu.nextstep.camp.calculator
 import com.google.common.truth.Truth.assertThat
 import edu.nextstep.camp.calculator.domain.Expression
 import edu.nextstep.camp.calculator.domain.Operator
+import edu.nextstep.camp.calculator.model.CalculatorMemoryItem
 import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -32,6 +33,7 @@ class MainPresenterTest {
         // given
         val expressionSlot = slot<Expression>()
         every { view.showExpression(capture(expressionSlot)) } answers { nothing }
+        every { view.hideMemoryList() } answers { nothing }
 
         // when
         presenter.addToExpression(input)
@@ -49,6 +51,7 @@ class MainPresenterTest {
         val toastIdSlot = slot<Int>()
         every { view.showExpression(any()) } just Runs
         every { view.showToast(capture(toastIdSlot)) } just Runs
+        every { view.hideMemoryList() } just Runs
 
         // when
         presenter.calculateToExpression()
@@ -73,6 +76,8 @@ class MainPresenterTest {
         val toastIdSlot = slot<Int>()
         every { view.showExpression(any()) } just Runs
         every { view.showToast(capture(toastIdSlot)) } just Runs
+        every { view.hideMemoryList() } just Runs
+
         presenter.addToExpression(operand)
         presenter.addToExpression(Operator.of(operator)!!)
 
@@ -98,6 +103,8 @@ class MainPresenterTest {
         // given
         val expressionSlot = slot<Expression>()
         every { view.showExpression(capture(expressionSlot)) } just Runs
+        every { view.hideMemoryList() } just Runs
+
         presenter.addToExpression(operand1)
         presenter.addToExpression(Operator.of(operator)!!)
         presenter.addToExpression(operand2)
@@ -109,5 +116,54 @@ class MainPresenterTest {
         val actual = expressionSlot.captured
         assertThat(actual.toString()).isEqualTo(expected)
         verify(exactly = 4) { view.showExpression(any()) }
+    }
+
+    @Test
+    @DisplayName("저장 기록이 안보여질 때, 시계 버튼을 누르면 계산 기록은 보여주고 계산 결과는 숨긴다.")
+    fun test5() {
+        // given
+        every { view.getMemoryListVisible() } returns false
+        every { view.showMemoryList() } answers { nothing }
+        every { view.hideExpression() } answers { nothing }
+        every { view.notifyMemoryList(any()) } answers { nothing }
+
+        // when
+        presenter.checkMemoryListVisible()
+        presenter.updateMemoryList()
+
+        // then
+        verify(exactly = 1) { view.showMemoryList() }
+        verify(exactly = 1) { view.hideExpression() }
+        verify(exactly = 1) { view.notifyMemoryList(any()) }
+    }
+
+    @Test
+    @DisplayName("완전한 수식 2개를 계산 후 시계버튼을 누르면 2개의 저장 기록을 보여준다.")
+    fun test6() {
+        // given
+        val calculatorMemoryItemSlot = slot<List<CalculatorMemoryItem>>()
+        every { view.getMemoryListVisible() } returns false
+        every { view.showExpression(any()) } answers { nothing }
+        every { view.hideExpression() } answers { nothing }
+        every { view.showMemoryList() } answers { nothing }
+        every { view.notifyMemoryList(capture(calculatorMemoryItemSlot)) } answers { nothing }
+        every { view.hideMemoryList() } answers { nothing }
+
+        presenter.addToExpression(10)
+        presenter.addToExpression(Operator.Plus)
+        presenter.addToExpression(20)
+        presenter.calculateToExpression()
+
+        presenter.addToExpression(Operator.Minus)
+        presenter.addToExpression(20)
+        presenter.calculateToExpression()
+
+        // when
+        presenter.checkMemoryListVisible()
+        presenter.updateMemoryList()
+
+        // then
+        val actual = calculatorMemoryItemSlot.captured.size
+        assertThat(actual).isEqualTo(2)
     }
 }
