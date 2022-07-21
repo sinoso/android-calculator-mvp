@@ -1,91 +1,94 @@
 package edu.nextstep.camp.calculator
 
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
-import edu.nextstep.camp.calculator.domain.Calculator
-import edu.nextstep.camp.calculator.domain.Expression
+import edu.nextstep.camp.calculator.domain.Operand
 import edu.nextstep.camp.calculator.domain.Operator
+import edu.nextstep.camp.calculator.domain.StringCalculator
+import edu.nextstep.camp.calculator.domain.StringExpressionState
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val calculator = Calculator()
-    private var expression = Expression.EMPTY
+
+    private val stringExpressionState: StringExpressionState
+        get() = StringExpressionState.of(binding.textView.text.toString())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        initViewBinding()
+        initOperandButtons()
+        initOperatorButtons()
+        initDeleteButton()
+        initEqualsButton()
+    }
+
+    private fun initViewBinding() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+    }
 
-        binding.button0.setOnClickListener {
-            expression += 0
-            binding.textView.text = expression.toString()
+    private fun initOperandButtons() {
+        (0..9).forEach { number ->
+            val viewId = resources.getIdentifier("$BUTTON_VIEW_PREFIX$number", "id", packageName)
+            val button = findViewById(viewId) as? Button ?: return@forEach
+            setOperandButtonListener(button, Operand(number))
         }
-        binding.button1.setOnClickListener {
-            expression += 1
-            binding.textView.text = expression.toString()
+    }
+
+    private fun setOperandButtonListener(button: Button, operand: Operand) {
+        button.setOnClickListener {
+            binding.textView.text = stringExpressionState.addElement(operand).toString()
         }
-        binding.button2.setOnClickListener {
-            expression += 2
-            binding.textView.text = expression.toString()
+    }
+
+    private fun initOperatorButtons() {
+        listOf(
+            binding.buttonPlus to Operator.PLUS,
+            binding.buttonMinus to Operator.MINUS,
+            binding.buttonMultiply to Operator.MULTIPLY,
+            binding.buttonDivide to Operator.DIVIDE,
+        ).forEach { (button, operator) ->
+            setOperatorButtonListener(
+                button = button,
+                operator = operator
+            )
         }
-        binding.button3.setOnClickListener {
-            expression += 3
-            binding.textView.text = expression.toString()
+    }
+
+    private fun setOperatorButtonListener(button: Button, operator: Operator) {
+        button.setOnClickListener {
+            binding.textView.text = stringExpressionState.addElement(operator).toString()
         }
-        binding.button4.setOnClickListener {
-            expression += 4
-            binding.textView.text = expression.toString()
-        }
-        binding.button5.setOnClickListener {
-            expression += 5
-            binding.textView.text = expression.toString()
-        }
-        binding.button6.setOnClickListener {
-            expression += 6
-            binding.textView.text = expression.toString()
-        }
-        binding.button7.setOnClickListener {
-            expression += 7
-            binding.textView.text = expression.toString()
-        }
-        binding.button8.setOnClickListener {
-            expression += 8
-            binding.textView.text = expression.toString()
-        }
-        binding.button9.setOnClickListener {
-            expression += 9
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonPlus.setOnClickListener {
-            expression += Operator.Plus
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonMinus.setOnClickListener {
-            expression += Operator.Minus
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonMultiply.setOnClickListener {
-            expression += Operator.Multiply
-            binding.textView.text = expression.toString()
-        }
-        binding.buttonDivide.setOnClickListener {
-            expression += Operator.Divide
-            binding.textView.text = expression.toString()
-        }
+    }
+
+    private fun initDeleteButton() {
         binding.buttonDelete.setOnClickListener {
-            expression = expression.removeLast()
-            binding.textView.text = expression.toString()
+            binding.textView.text = stringExpressionState.removeElement().toString()
         }
+    }
+
+    private fun initEqualsButton() {
         binding.buttonEquals.setOnClickListener {
-            val result = calculator.calculate(expression.toString())
-            if (result == null) {
-                Toast.makeText(this, R.string.incomplete_expression, Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            runCatching {
+                StringCalculator.calculate(stringExpressionState)
             }
-            expression = Expression.EMPTY + result
-            binding.textView.text = result.toString()
+                .onSuccess {
+                    binding.textView.text = it.value.toString()
+                }
+                .onFailure {
+                    Toast
+                        .makeText(this, R.string.incomplete_expression, Toast.LENGTH_SHORT)
+                        .show()
+                }
         }
+    }
+
+    companion object {
+        private const val BUTTON_VIEW_PREFIX = "button"
     }
 }
