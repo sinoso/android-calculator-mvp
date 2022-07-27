@@ -1,13 +1,11 @@
 package edu.nextstep.camp.calculator
 
 import android.os.Bundle
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import edu.nextstep.camp.calculator.databinding.ActivityMainBinding
-import edu.nextstep.camp.calculator.domain.Calculator
-import edu.nextstep.camp.calculator.domain.Expression
-import edu.nextstep.camp.calculator.domain.Operator
+import edu.nextstep.camp.calculator.domain.*
 
 class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var binding: ActivityMainBinding
@@ -18,15 +16,26 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         presenter =
-            MainPresenter(view = this, calculator = Calculator(), expression = Expression.EMPTY)
+            MainPresenter(
+                view = this,
+                calculator = Calculator(),
+                expression = Expression.EMPTY,
+                calculationResultStorage = CalculationResultStorage()
+            )
         setButtons()
+        setCalculationResultRecyclerView()
     }
 
-    override fun showIncompleteExpression(): Unit =
+    override fun showToastForIncompleteExpressionInputted(): Unit =
         Toast.makeText(this, R.string.incomplete_expression, Toast.LENGTH_SHORT).show()
 
     override fun showExpression(string: String) {
         binding.textView.text = string
+    }
+
+    override fun changeCalculateResults(calculationResultList: List<CalculationResult>) {
+        val adapter = binding.recyclerView.adapter as CalculationHistoryAdapter
+        adapter.submitList(calculationResultList)
     }
 
     private fun setButtons() {
@@ -37,37 +46,46 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private fun setOperandButtons() {
         with(binding) {
-            button0 setOperandAddClickListener 0
-            button1 setOperandAddClickListener 1
-            button2 setOperandAddClickListener 2
-            button3 setOperandAddClickListener 3
-            button4 setOperandAddClickListener 4
-            button5 setOperandAddClickListener 5
-            button6 setOperandAddClickListener 6
-            button7 setOperandAddClickListener 7
-            button8 setOperandAddClickListener 8
-            button9 setOperandAddClickListener 9
+            button0.setOnClickListener { presenter.addOperandToExpression(0) }
+            button1.setOnClickListener { presenter.addOperandToExpression(1) }
+            button2.setOnClickListener { presenter.addOperandToExpression(2) }
+            button3.setOnClickListener { presenter.addOperandToExpression(3) }
+            button4.setOnClickListener { presenter.addOperandToExpression(4) }
+            button5.setOnClickListener { presenter.addOperandToExpression(5) }
+            button6.setOnClickListener { presenter.addOperandToExpression(6) }
+            button7.setOnClickListener { presenter.addOperandToExpression(7) }
+            button8.setOnClickListener { presenter.addOperandToExpression(8) }
+            button9.setOnClickListener { presenter.addOperandToExpression(9) }
         }
     }
 
     private fun setOperatorButtons() {
         with(binding) {
-            buttonPlus setOperatorAddClickListener Operator.Plus
-            buttonMinus setOperatorAddClickListener Operator.Minus
-            buttonMultiply setOperatorAddClickListener Operator.Multiply
-            buttonDivide setOperatorAddClickListener Operator.Divide
+            buttonPlus.setOnClickListener { presenter.addOperatorToExpression(Operator.Plus) }
+            buttonMinus.setOnClickListener { presenter.addOperatorToExpression(Operator.Minus) }
+            buttonMultiply.setOnClickListener { presenter.addOperatorToExpression(Operator.Multiply) }
+            buttonDivide.setOnClickListener { presenter.addOperatorToExpression(Operator.Divide) }
         }
     }
 
     private fun setFunctionalButtons() {
-        binding.buttonDelete.setOnClickListener { presenter.removeLast() }
+        binding.buttonDelete.setOnClickListener { presenter.removeLastFromExpression() }
         binding.buttonEquals.setOnClickListener { presenter.proceedCalculation() }
+        binding.buttonMemory.setOnClickListener { changeCalculationHistoryVisibility() }
     }
 
-    private infix fun Button.setOperandAddClickListener(operand: Int) =
-        setOnClickListener { presenter.addOperandToExpression(operand) }
+    private fun changeCalculationHistoryVisibility() {
+        if (binding.recyclerView.isVisible) {
+            binding.recyclerView.isVisible = false
+            return
+        }
+        binding.recyclerView.isVisible = true
+        presenter.requestChangeCalculateResults()
+    }
 
-    private infix fun Button.setOperatorAddClickListener(operator: Operator) =
-        setOnClickListener { presenter.addOperatorToExpression(operator) }
-
+    private fun setCalculationResultRecyclerView() {
+        binding.recyclerView.apply {
+            adapter = CalculationHistoryAdapter()
+        }
+    }
 }

@@ -1,3 +1,5 @@
+package edu.nextstep.camp.calculator.domain
+
 import com.google.common.truth.Truth.assertThat
 import edu.nextstep.camp.calculator.domain.Expression
 import edu.nextstep.camp.calculator.domain.Operator
